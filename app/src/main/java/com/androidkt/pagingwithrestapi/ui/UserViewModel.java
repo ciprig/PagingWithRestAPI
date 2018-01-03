@@ -22,25 +22,20 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<PagedList<User>> userList;
     public LiveData<NetworkState> networkState;
-    Executor executor;
-    LiveData<ItemKeyedUserDataSource> tDataSource;
 
     public UserViewModel() {
-        executor = Executors.newFixedThreadPool(5);
-        GitHubUserDataSourceFactory githubUserDataSourceFacteory = new GitHubUserDataSourceFactory(executor);
+        Executor executor = Executors.newFixedThreadPool(5);
+        GitHubUserDataSourceFactory gitHubUserDataSourceFactory = new GitHubUserDataSourceFactory();
 
-        tDataSource = githubUserDataSourceFacteory.getMutableLiveData();
-
-        networkState = Transformations.switchMap(githubUserDataSourceFacteory.getMutableLiveData(), dataSource -> {
-            return dataSource.getNetworkState();
-        });
+        networkState = Transformations.switchMap(gitHubUserDataSourceFactory.getMutableLiveData(),
+                ItemKeyedUserDataSource::getNetworkState);
 
         PagedList.Config pagedListConfig =
-                (new PagedList.Config.Builder()).setEnablePlaceholders(false)
+                (new PagedList.Config.Builder()).setEnablePlaceholders(true)
                         .setInitialLoadSizeHint(10)
                         .setPageSize(20).build();
 
-        userList = (new LivePagedListBuilder(githubUserDataSourceFacteory, pagedListConfig))
+        userList = new LivePagedListBuilder<>(gitHubUserDataSourceFactory, pagedListConfig)
                 .setBackgroundThreadExecutor(executor)
                 .build();
     }

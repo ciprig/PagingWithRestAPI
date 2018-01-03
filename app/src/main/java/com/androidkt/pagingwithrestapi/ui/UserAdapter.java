@@ -1,7 +1,10 @@
 package com.androidkt.pagingwithrestapi.ui;
 
+import android.arch.paging.PagedList;
 import android.arch.paging.PagedListAdapter;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,11 +59,7 @@ public class UserAdapter extends PagedListAdapter<User, RecyclerView.ViewHolder>
     }
 
     private boolean hasExtraRow() {
-        if (networkState != null && networkState != NetworkState.LOADED) {
-            return true;
-        } else {
-            return false;
-        }
+        return networkState != null && networkState != NetworkState.LOADED;
     }
 
     @Override
@@ -72,7 +71,19 @@ public class UserAdapter extends PagedListAdapter<User, RecyclerView.ViewHolder>
         }
     }
 
+    @Override
+    public void setList(PagedList<User> pagedList) {
+        Log.d(TAG, "setList " + pagedList);
+        super.setList(pagedList);
+    }
+
+    @Override
+    public void onCurrentListChanged(@Nullable PagedList<User> currentList) {
+        Log.d(TAG, "onCurrentListChanged " + currentList);
+    }
+
     public void setNetworkState(NetworkState newNetworkState) {
+        Log.d(TAG, "setNetworkState " + newNetworkState);
         NetworkState previousState = this.networkState;
         boolean previousExtraRow = hasExtraRow();
         this.networkState = newNetworkState;
@@ -115,12 +126,7 @@ public class UserAdapter extends PagedListAdapter<User, RecyclerView.ViewHolder>
             errorMsg = itemView.findViewById(R.id.error_msg);
             button = itemView.findViewById(R.id.retry_button);
 
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listItemClickListener.onRetryClick(view, getAdapterPosition());
-                }
-            });
+            button.setOnClickListener(view -> listItemClickListener.onRetryClick(view, getAdapterPosition()));
         }
 
 

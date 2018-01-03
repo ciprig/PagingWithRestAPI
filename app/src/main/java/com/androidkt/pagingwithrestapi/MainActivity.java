@@ -14,7 +14,6 @@ import com.androidkt.pagingwithrestapi.util.ListItemClickListener;
 
 public class MainActivity extends AppCompatActivity implements ListItemClickListener {
 
-    private UserViewModel viewModel;
     private String TAG = "MainActivity";
 
     @Override
@@ -27,18 +26,13 @@ public class MainActivity extends AppCompatActivity implements ListItemClickList
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
 
-        viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        UserViewModel viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
 
         final UserAdapter userUserAdapter = new UserAdapter(this);
 
-        viewModel.userList.observe(this, pagedList -> {
-            userUserAdapter.setList(pagedList);
-        });
+        viewModel.userList.observe(this, userUserAdapter::setList);
 
-        viewModel.networkState.observe(this, networkState -> {
-            userUserAdapter.setNetworkState(networkState);
-            Log.d(TAG, "Network State Change");
-        });
+        viewModel.networkState.observe(this, userUserAdapter::setNetworkState);
 
         recyclerView.setAdapter(userUserAdapter);
 
